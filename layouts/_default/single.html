@@ -20,6 +20,17 @@
                         {{ end }}
                 </span>
                 {{- end }}
+                <span class="post-tags">
+                    {{ with .Params.tags }}
+                        <section>
+                        <i class="iconfont icon-tag"></i>Tag(s): 
+                        {{ range . }}
+                        <span class="tag"><a href="{{ "tags/" | absURL }}{{ . | urlize }}/">
+                                #{{.}}</a></span>
+                        {{ end }}
+                        </section>
+                    {{ end }}
+                    </span>
         </div>
     </header>
     <div class="post-content">
@@ -66,23 +77,6 @@
                 {{ . | safeHTML}}
             </p>
             {{ end }}
-    </div>
-
-  
-    <div class="post-tags">
-        {{ with .Params.tags }}
-            <section>
-            <i class="iconfont icon-tag"></i>Tag(s): 
-            {{ range . }}
-            <span class="tag"><a href="{{ "tags/" | absURL }}{{ . | urlize }}/">
-                    #{{.}}</a></span>
-            {{ end }}
-            </section>
-        {{ end }}
-        <section>
-                <a href="javascript:window.history.back();">back</a></span> · 
-                <span><a href="{{ .Site.BaseURL }}">home</a></span>
-        </section>
     </div>
 
     <div class="post-nav">
