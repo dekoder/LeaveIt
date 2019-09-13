@@ -1,18 +1,11 @@
 <!-- JSON-LD -->
-
 {{- $cdn_url := .Scratch.Get "cdn_url" -}}
 {{- $base_url := .Site.BaseURL -}}
-{{ $images := findRE "<img src=\"[^\"|\\\"]*\"" .Content -}}
-{{ if ge (len $images) 1}}
-    {{ $.Scratch.Set "postHasImages" true }}
-{{ end }}
-
-{{ with .Params.featured_image }}
-  {{- $img := . -}}
-  <img src="{{ printf "%s%s" $cdn_url $img }}" class="featured_image">
-{{ end }}
-
-{{ if .IsHome }}
+{{- if (eq $cdn_url "") -}}
+{{- $base_url = .Site.BaseURL -}}
+{{- else -}}
+{{- $base_url = $cdn_url -}}
+{{- end -}}
 <script type="application/ld+json">
 {
     "@context": "http://schema.org",
@@ -51,17 +44,16 @@
                 "@type": "ImageObject",
                 {{- with .Site.Params.avatar -}}
                 {{ $avatar := .}}
-                "url": "{{ (printf "%s%s%s" $base_url $cdn_url $avatar) }}",
+                "url": "{{ (printf "%s%s" $base_url $avatar) }}",
                 {{- end -}}
                 "width": 211,
                 "height": 192
             }
         },
         "image": {
-            {{- with .Params.featured_image -}}
-            {{- $img := . -}}
+            {{- with (index (.Resources.ByType "image") 0) -}}
             "@type": "imageObject",
-            "url": "{{ printf "%s%s%s" $base_url $cdn_url $img }}",
+            "url": {{ .Permalink }},
             "height": "640",
             "width": "800"
             {{- end -}}
