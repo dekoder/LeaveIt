@@ -1,43 +1,79 @@
 <!-- JSON-LD -->
+
+{{- $cdn_url := .Scratch.Get "cdn_url" -}}
+{{- $base_url := .Site.BaseURL -}}
+{{ $images := findRE "<img src=\"[^\"|\\\"]*\"" .Content -}}
+{{ if ge (len $images) 1}}
+    {{ $.Scratch.Set "postHasImages" true }}
+{{ end }}
+
+{{ with .Params.featured_image }}
+  {{- $img := . -}}
+  <img src="{{ printf "%s%s" $cdn_url $img }}" class="featured_image">
+{{ end }}
+
 {{ if .IsHome }}
 <script type="application/ld+json">
 {
     "@context": "http://schema.org",
     "@type": "WebSite",
     "url": "{{ .Permalink }}",
-    "name": "{{ .Site.Title }}",
+    "name": {{ .Site.Title }},
     "author": {
         "@type": "Person",
         "name": "{{ .Site.Params.author }}"
     },
-    "description": "{{ .Site.Params.description }}"
+    "description": {{ .Site.Params.description }}
 }
 </script>
 {{ end }} 
 {{ if .IsPage }}
 <script type="application/ld+json">
- "@context" : "http://schema.org",
-    "@type" : "BlogPosting",
-    "mainEntityOfPage": {
-         "@type": "WebPage",
-         "@id": "{{ .Site.BaseURL }}"
-    },
-    "articleSection" : "{{ .Section }}",
-    "name" : "{{ .Title }}",
-    "headline" : "{{ .Title }}",
-    "description" : "{{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }}",
-    "inLanguage" : "{{ .Site.LanguageCode }}",
-    "author" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
-    "creator" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
-    "publisher": "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
-    "accountablePerson" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
-    "copyrightHolder" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
-    "copyrightYear" : "{{ .Date.Format "2006" }}",
-    "datePublished": "{{ .Date }}",
-    "dateModified" : "{{ .Date }}",
-    "url" : "{{ .Permalink }}",
-    "wordCount" : "{{ .WordCount }}",
-    "keywords" : [ {{ if isset .Params "tags" }}{{ range .Params.tags }}"{{ . }}",{{ end }}{{ end }} {{with .Site.Title}}"{{ .}}"{{ end }}]
-}
-</script>
+    {
+        "@context" : "http://schema.org",
+        "@type" : "BlogPosting",
+        "mainEntityOfPage": {
+             "@type": "WebPage",
+             "@id": "{{ .Site.BaseURL }}"
+        },
+        "articleSection" : "{{ .Section }}",
+        "name" : "{{ .Title }}",
+        "headline" : "{{ .Title }}",
+        "description" : {{ if .Description }}{{ .Description }}{{ else }}{{if .IsPage}}{{ .Summary }}{{ end }}{{ end }},
+        "inLanguage" : "en-US",
+        "author" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
+        "creator" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
+        "publisher": {
+            "@type": "Organization",
+            "name": "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
+            "url": "{{ .Site.BaseURL }}",
+            "logo": {
+                "@type": "ImageObject",
+                {{- with .Site.Params.avatar -}}
+                {{ $avatar := .}}
+                "url": "{{ (printf "%s%s%s" $base_url $cdn_url $avatar) }}",
+                {{- end -}}
+                "width": 211,
+                "height": 192
+            }
+        },
+        "image": {
+            {{- with .Params.featured_image -}}
+            {{- $img := . -}}
+            "@type": "imageObject",
+            "url": "{{ printf "%s%s%s" $base_url $cdn_url $img }}",
+            "height": "640",
+            "width": "800"
+            {{- end -}}
+        },
+        "accountablePerson" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
+        "copyrightHolder" : "{{ if isset .Params "author" }}{{ .Params.author }}{{ else }}{{ .Site.Params.author }}{{ end }}",
+        "copyrightYear" : "{{ .Date.Format "2006" }}",
+        "datePublished": {{ .Date }},
+        "dateModified" : {{ .Date }},
+        "url" : "{{ .Permalink }}",
+        "wordCount" : "{{ .WordCount }}",
+        "keywords" : [ {{ if isset .Params "tags" }}{{ range .Params.tags }}"{{ . }}",{{ end }}{{ end }}"Blog" ]
+    }
+    </script>
 {{ end }}
