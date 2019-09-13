@@ -6,6 +6,7 @@
 {{- else -}}
 {{- $base_url = $cdn_url -}}
 {{- end -}}
+{{ if .IsHome }}
 <script type="application/ld+json">
 {
     "@context": "http://schema.org",
